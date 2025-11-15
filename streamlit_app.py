@@ -101,40 +101,45 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Dans streamlit_app.py
-
 def load_css():
     st.markdown("""
     <style>
-        /* --- CORRECTION CSS --- */
+        /* --- CORRECTION CSS V2 --- */
 
-        /* Style général du corps de l'application */
+        /* Style général */
         .stApp { background-color: #F0F2F6; }
 
-        /* Conteneur de l'en-tête */
+        /* En-tête */
         .header { background-color: #FFFFFF; padding: 2rem; border-radius: 10px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .header h1 { color: #333; font-weight: 700; }
-        .header p { color: #555; font-size: 1.1rem; max-width: 800px; margin: auto; }
+        .header h1 { color: #333; }
+        .header p { color: #555; font-size: 1.1rem; }
 
-        /* Conteneur pour chaque section de questions */
+        /* Conteneur de section */
         .section-container { background-color: #FFFFFF; padding: 2rem 2.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
         .section-container h2 { color: #D97D54; border-bottom: 2px solid #F0F2F6; padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
 
-        /* --- AJOUTS POUR LA VISIBILITÉ DU TEXTE --- */
-        
-        /* Forcer la couleur du texte pour tous les labels (questions, options radio, etc.) */
-        label, .st-emotion-cache-1y4p8pa {
-            color: #31333F !important; /* Couleur de texte sombre par défaut de Streamlit */
+        /* --- CORRECTIONS DE VISIBILITÉ ET DE STYLE --- */
+
+        /* Cible le texte des questions (passé en markdown) et le met en gras */
+        .st-emotion-cache-1y4p8pa > p > strong {
+            font-weight: 700 !important; /* Gras */
+            color: #31333F !important; /* Texte sombre */
         }
 
-        /* Forcer la couleur du texte pour les questions en gras (markdown) */
-        .stMarkdown p, .stMarkdown strong {
-            color: #31333F !important;
+        /* Cible le texte des options de réponse (radio, checkbox) */
+        .st-emotion-cache-6qob1r, .st-emotion-cache-1y4p8pa {
+            color: #31333F !important; /* Texte sombre */
         }
         
-        /* --- FIN DES AJOUTS --- */
+        /* Cible le texte des champs de saisie (text_input) */
+        .stTextInput label {
+            font-weight: 700 !important; /* Gras */
+            color: #31333F !important; /* Texte sombre */
+        }
 
-        /* Style du bouton principal */
+        /* --- FIN DES CORRECTIONS --- */
+
+        /* Bouton principal */
         .stButton>button { width: 100%; height: 3rem; font-size: 1.2rem; font-weight: bold; background-color: #D97D54; color: white; border: none; border-radius: 5px; }
         .stButton>button:hover { background-color: #C76B43; color: white; }
     </style>
@@ -157,6 +162,8 @@ for q in questionnaire_db.questions:
         sections[q.section] = []
     sections[q.section].append(q)
 
+# Dans streamlit_app.py, remplace la boucle d'affichage des questions
+
 for section_title, questions_in_section in sections.items():
     with st.container():
         st.markdown(f'<div class="section-container"><h2>{section_title}</h2>', unsafe_allow_html=True)
@@ -168,13 +175,17 @@ for section_title, questions_in_section in sections.items():
                 q_answers = q.answers
 
                 if q_type == 'text_input':
+                    # On utilise directement le label ici car le CSS le met en gras
                     user_answers[q_id] = st.text_input(q_text, key=q_id, placeholder="Votre réponse...")
+                
                 elif q_type == 'radio':
+                    st.markdown(f"**{q_text}**")
                     answer_options = [ans.text for ans in q_answers]
                     answer_text_to_id = {ans.text: ans.id for ans in q_answers}
-                    selected_option = st.radio(q_text, options=answer_options, key=q_id, horizontal=True)
+                    selected_option = st.radio(" ", options=answer_options, key=q_id, horizontal=True, label_visibility="collapsed")
                     if selected_option:
                         user_answers[q_id] = answer_text_to_id[selected_option]
+                
                 elif q_type == 'grid_choice':
                     st.markdown(f"**{q_text}**")
                     q_rows = q.rows
@@ -187,9 +198,11 @@ for section_title, questions_in_section in sections.items():
                             row_id = row.get('id')
                             row_text = row.get('text')
                             if not row_id or not row_text: continue
-                            selected_option = st.radio(label=row_text, options=col_options, key=f"{q_id}_{row_id}", horizontal=True)
+                            # On utilise le label de st.radio pour les lignes de la grille
+                            selected_option = st.radio(label=f"*{row_text}*", options=col_options, key=f"{q_id}_{row_id}", horizontal=True)
                             if selected_option:
                                 user_answers[f"{q_id}_{row_id}"] = col_answer_map[selected_option]
+                
                 elif q_type == 'checkbox':
                     st.markdown(f"**{q_text}**")
                     for answer in q_answers:
@@ -197,22 +210,26 @@ for section_title, questions_in_section in sections.items():
                         ans_text = answer.text
                         if st.checkbox(ans_text, key=ans_id):
                             user_answers[ans_id] = ans_id
+                
                 elif q_type == 'radio_with_other':
+                    st.markdown(f"**{q_text}**")
                     other_option_text = "Autre"
                     regular_options = [ans.text for ans in q_answers if ans.text != other_option_text]
                     all_display_options = regular_options + [other_option_text]
                     answer_text_to_id = {ans.text: ans.id for ans in q_answers}
-                    selected_option = st.radio(q_text, options=all_display_options, key=q_id)
+                    selected_option = st.radio(" ", options=all_display_options, key=q_id, label_visibility="collapsed")
                     if selected_option:
                         user_answers[q_id] = answer_text_to_id[selected_option]
                         if selected_option == other_option_text:
                             other_text = st.text_input("Veuillez préciser :", key=f"{q_id}_other_text")
                             if other_text:
                                 user_answers[f"{q_id}_other_text"] = other_text
+                
                 elif q_type == 'radio_with_conditional_text':
+                    st.markdown(f"**{q_text}**")
                     answer_options = [ans.text for ans in q_answers]
                     answer_text_to_id = {ans.text: ans.id for ans in q_answers}
-                    selected_option_text = st.radio(q_text, options=answer_options, key=q_id, horizontal=True)
+                    selected_option_text = st.radio(" ", options=answer_options, key=q_id, horizontal=True, label_visibility="collapsed")
                     if selected_option_text:
                         selected_id = answer_text_to_id[selected_option_text]
                         user_answers[q_id] = selected_id
@@ -222,18 +239,19 @@ for section_title, questions_in_section in sections.items():
                             conditional_text = st.text_input(prompt, key=f"{q_id}_conditional")
                             if conditional_text:
                                 user_answers[f"{q_id}_conditional_text"] = conditional_text
+                
                 elif q_type == 'skin_tone_selector':
                     st.markdown(f"**{q_text}**")
                     st.info("Ta couleur naturelle n'est pas un teint, c'est ton niveau réel de mélanine...")
-                    skin_tone_value = st.slider("Comment décrirais-tu ton teint ?", 1, 10, key=f"{q_id}_slider")
+                    st.markdown("**Comment décrirais-tu ton teint ?**")
+                    skin_tone_value = st.slider(" ", 1, 10, key=f"{q_id}_slider", label_visibility="collapsed")
                     user_answers[f"{q_id}_slider"] = str(skin_tone_value)
                     if q_answers:
                         unknown_answer = q_answers[0]
                         is_unknown = st.checkbox(unknown_answer.text, key=q_id)
                         if is_unknown:
                             user_answers[q_id] = unknown_answer.id
-            
-            # Ajoute un séparateur visuel entre les questions, sauf pour la dernière de la section
+
             if i < len(questions_in_section) - 1:
                 st.markdown("<hr style='margin: 1.5rem 0; border-color: #F0F2F6;'>", unsafe_allow_html=True)
 
