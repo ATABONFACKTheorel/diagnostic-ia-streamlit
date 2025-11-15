@@ -1,5 +1,5 @@
 # streamlit_app.py
-# Fichier unifié pour le déploiement sur Streamlit Cloud (Version Corrigée)
+# Fichier unifié pour le déploiement sur Streamlit Cloud (Version Finale)
 
 import streamlit as st
 from pydantic import BaseModel, Field
@@ -85,7 +85,7 @@ def produce_diagnostic(user_answers: Dict[str, str]):
 
 st.set_page_config(page_title="Diagnostic de Peau - Melania", layout="wide", initial_sidebar_state="collapsed")
 
-# --- CSS CORRIGÉ ET SIMPLIFIÉ ---
+# --- CSS FINAL ---
 def load_css():
     st.markdown("""
     <style>
@@ -96,16 +96,31 @@ def load_css():
         .section-container { background-color: #FFFFFF; padding: 2rem 2.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
         .section-container h2 { color: #D97D54; border-bottom: 2px solid #F0F2F6; padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
         
-        /* --- LA CORRECTION FINALE --- */
-        /* Cible TOUT le texte dans l'application et le met en couleur sombre */
-        body, p, label, div, span {
-            color: #31333F !important;
-        }
-        /* Cible spécifiquement les labels des widgets (questions) et les met en gras */
-        .st-emotion-cache-1y4p8pa {
+        /* --- CORRECTIONS FINALES --- */
+        
+        /* Rendre le texte des questions en gras */
+        .st-emotion-cache-ue6h4q {
             font-weight: 700 !important;
         }
-        /* --- FIN DE LA CORRECTION --- */
+
+        /* Assurer la visibilité du texte des réponses */
+        label, span {
+            color: #31333F !important;
+        }
+
+        /* Styliser le conteneur du JSON pour une meilleure lisibilité */
+        .stJson {
+            background-color: #FFFFFF;
+            border: 1px solid #E6E6E6;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        /* Changer la couleur du texte à l'intérieur du JSON */
+        .stJson span {
+            color: #31333F !important;
+        }
+        
+        /* --- FIN DES CORRECTIONS --- */
 
         .stButton>button { width: 100%; height: 3rem; font-size: 1.2rem; font-weight: bold; background-color: #D97D54; color: white; border: none; border-radius: 5px; }
         .stButton>button:hover { background-color: #C76B43; color: white; }
@@ -120,7 +135,7 @@ user_answers = {}
 sections = {q.section: [] for q in questionnaire_db.questions}
 for q in questionnaire_db.questions: sections[q.section].append(q)
 
-# --- BOUCLE D'AFFICHAGE SIMPLIFIÉE (RETOUR À L'ORIGINAL) ---
+# --- BOUCLE D'AFFICHAGE (RETOUR À LA VERSION SIMPLE ET STABLE) ---
 for section_title, questions_in_section in sections.items():
     with st.container():
         st.markdown(f'<div class="section-container"><h2>{section_title}</h2>', unsafe_allow_html=True)
@@ -188,5 +203,5 @@ if 'diagnostic_result' in st.session_state:
         st.markdown('<div class="section-container"><h2>Résultat de votre Diagnostic (Profil de score)</h2>', unsafe_allow_html=True)
         st.success("Votre profil a été généré avec succès !")
         st.json(st.session_state['diagnostic_result']['diagnostic_profile'])
-        st.info("Ce profil technique sera utilisé pour générer un diagnostic textuel personnalisé dans la prochaine version.")
+        st.info("Ce profil technique serasera utilisé pour générer un diagnostic textuel personnalisé dans la prochaine version.")
         st.markdown('</div>', unsafe_allow_html=True)
