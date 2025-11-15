@@ -101,16 +101,40 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Dans streamlit_app.py
+
 def load_css():
     st.markdown("""
     <style>
+        /* --- CORRECTION CSS --- */
+
+        /* Style général du corps de l'application */
         .stApp { background-color: #F0F2F6; }
+
+        /* Conteneur de l'en-tête */
         .header { background-color: #FFFFFF; padding: 2rem; border-radius: 10px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
         .header h1 { color: #333; font-weight: 700; }
         .header p { color: #555; font-size: 1.1rem; max-width: 800px; margin: auto; }
+
+        /* Conteneur pour chaque section de questions */
         .section-container { background-color: #FFFFFF; padding: 2rem 2.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
         .section-container h2 { color: #D97D54; border-bottom: 2px solid #F0F2F6; padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
-        .st-emotion-cache-1y4p8pa { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
+        /* --- AJOUTS POUR LA VISIBILITÉ DU TEXTE --- */
+        
+        /* Forcer la couleur du texte pour tous les labels (questions, options radio, etc.) */
+        label, .st-emotion-cache-1y4p8pa {
+            color: #31333F !important; /* Couleur de texte sombre par défaut de Streamlit */
+        }
+
+        /* Forcer la couleur du texte pour les questions en gras (markdown) */
+        .stMarkdown p, .stMarkdown strong {
+            color: #31333F !important;
+        }
+        
+        /* --- FIN DES AJOUTS --- */
+
+        /* Style du bouton principal */
         .stButton>button { width: 100%; height: 3rem; font-size: 1.2rem; font-weight: bold; background-color: #D97D54; color: white; border: none; border-radius: 5px; }
         .stButton>button:hover { background-color: #C76B43; color: white; }
     </style>
